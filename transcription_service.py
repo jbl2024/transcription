@@ -5,7 +5,6 @@ import tempfile
 from typing import Dict, List
 
 import requests
-from django.conf import settings
 from pydub import AudioSegment
 
 CHUNK_DURATION_MINUTES = 10
@@ -61,9 +60,9 @@ def transcribe_chunk(chunk: AudioSegment, previous_text: str = "") -> Dict:
     Returns:
         dict: Transcription result
     """
-    base_url = settings.CASSANDRE_API_BASE
-    api_key = settings.CASSANDRE_API_KEY
-    model = settings.WHISPER_MODEL
+    base_url = os.environ.get("CASSANDRE_API_BASE")
+    api_key = os.environ.get("CASSANDRE_API_KEY")
+    model = os.environ.get("WHISPER_MODEL")
 
     # Export chunk to temporary file
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
@@ -72,8 +71,8 @@ def transcribe_chunk(chunk: AudioSegment, previous_text: str = "") -> Dict:
 
         # Create prompt with context from previous chunks
         prompt = (
-            "Bonjour, Voici un fichier audio d'une conference sur l'IA "
-            "par quelqu'un qui travaille au rectorat de l'académie de Lyon. "
+            "Bonjour, Voici un fichier audio en français "
+            "que tu dois analyser. "
         )
         if previous_text:
             prompt += f"Contexte précédent: {previous_text[-500:]}"  # Last 500 chars of context
@@ -84,7 +83,7 @@ def transcribe_chunk(chunk: AudioSegment, previous_text: str = "") -> Dict:
                 "model": model,
                 "language": "fr",
                 "prompt": prompt,
-                "response_format": "json",
+                "response_format": "json", # can be json
                 "temperature": 0.2,
                 "timestamp_granularities[]": ["segment"],
             }
