@@ -65,8 +65,8 @@ def transcribe_chunk(chunk: AudioSegment, previous_text: str = "") -> Dict:
     model = os.environ.get("WHISPER_MODEL")
 
     # Export chunk to temporary file
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as temp_file:
-        chunk.export(temp_file.name, format="wav")
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=True) as temp_file:
+        chunk.export(temp_file.name, format="mp3")
         mime_type = get_mime_type(temp_file.name)
 
         # Create prompt with context from previous chunks
